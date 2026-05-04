@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  ci:
+  tests:
     runs-on: ubuntu-latest
 
     env:
@@ -15,7 +15,7 @@ jobs:
       DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
       DJANGO_DEBUG: "True"
       DJANGO_ALLOWED_HOSTS: "127.0.0.1,localhost"
-      
+
       POSTGRES_NAME: "HotelData"
       POSTGRES_USER: "admin"
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
@@ -51,13 +51,28 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Lint with ruff
-        run: |
-          ruff check .
-          ruff format --check .
-
       - name: Run migrations
         run: python manage.py migrate
 
       - name: Run tests with pytest
         run: pytest --tb=short -q
+
+  style:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install ruff
+        run: pip install ruff
+
+      - name: Lint with ruff
+        run: |
+          ruff check .
+          ruff format --check .
