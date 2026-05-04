@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -15,106 +14,238 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='City',
+            name="City",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
             ],
         ),
         migrations.CreateModel(
-            name='Country',
+            name="Country",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('iso_code', models.CharField(max_length=2, unique=True)),
-                ('name', models.CharField(max_length=255, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("iso_code", models.CharField(max_length=2, unique=True)),
+                ("name", models.CharField(max_length=255, unique=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Address',
+            name="Address",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('street', models.CharField(max_length=255)),
-                ('house', models.CharField(max_length=50)),
-                ('building', models.CharField(blank=True, max_length=50, null=True)),
-                ('apartment', models.CharField(blank=True, max_length=50, null=True)),
-                ('postal_code', models.CharField(max_length=20)),
-                ('longitude', models.DecimalField(decimal_places=6, max_digits=9)),
-                ('latitude', models.DecimalField(decimal_places=6, max_digits=9)),
-                ('city', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='city_addresses', to='hotel.city')),
-                ('country', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='country_addresses', to='hotel.country')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("street", models.CharField(max_length=255)),
+                ("house", models.CharField(max_length=50)),
+                ("building", models.CharField(blank=True, max_length=50, null=True)),
+                ("apartment", models.CharField(blank=True, max_length=50, null=True)),
+                ("postal_code", models.CharField(max_length=20)),
+                ("longitude", models.DecimalField(decimal_places=6, max_digits=9)),
+                ("latitude", models.DecimalField(decimal_places=6, max_digits=9)),
+                (
+                    "city",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="city_addresses",
+                        to="hotel.city",
+                    ),
+                ),
+                (
+                    "country",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="country_addresses",
+                        to="hotel.country",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Hotel',
+            name="Hotel",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(db_index=True, max_length=255)),
-                ('description', models.TextField(blank=True, default='No description')),
-                ('phone', models.CharField(max_length=20)),
-                ('email', models.EmailField(max_length=254)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('address', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='hotel.address')),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(db_index=True, max_length=255)),
+                ("description", models.TextField(blank=True, default="No description")),
+                ("phone", models.CharField(max_length=20)),
+                ("email", models.EmailField(max_length=254)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "address",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT, to="hotel.address"
+                    ),
+                ),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Region',
+            name="Region",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('country', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='country_regions', to='hotel.country')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                (
+                    "country",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="country_regions",
+                        to="hotel.country",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='city',
-            name='region',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='region_cities', to='hotel.region'),
+            model_name="city",
+            name="region",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="region_cities",
+                to="hotel.region",
+            ),
         ),
         migrations.AddField(
-            model_name='address',
-            name='region',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='region_addresses', to='hotel.region'),
+            model_name="address",
+            name="region",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="region_addresses",
+                to="hotel.region",
+            ),
         ),
         migrations.CreateModel(
-            name='RoomCategory',
+            name="RoomCategory",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('description', models.TextField(blank=True)),
-                ('capacity', models.IntegerField()),
-                ('base_price', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('currency', models.CharField(max_length=10)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('hotel', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='room_categories', to='hotel.hotel')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("description", models.TextField(blank=True)),
+                ("capacity", models.IntegerField()),
+                ("base_price", models.DecimalField(decimal_places=2, max_digits=10)),
+                ("currency", models.CharField(max_length=10)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "hotel",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="room_categories",
+                        to="hotel.hotel",
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('hotel', 'name')},
+                "unique_together": {("hotel", "name")},
             },
         ),
         migrations.CreateModel(
-            name='Room',
+            name="Room",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('room_number', models.CharField(max_length=20)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('hotel', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='rooms', to='hotel.hotel')),
-                ('category', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='rooms', to='hotel.roomcategory')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("room_number", models.CharField(max_length=20)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "hotel",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="rooms",
+                        to="hotel.hotel",
+                    ),
+                ),
+                (
+                    "category",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="rooms",
+                        to="hotel.roomcategory",
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('hotel', 'room_number')},
+                "unique_together": {("hotel", "room_number")},
             },
         ),
         migrations.CreateModel(
-            name='RoomImage',
+            name="RoomImage",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('image', models.ImageField(upload_to='rooms/')),
-                ('order', models.IntegerField(default=0)),
-                ('is_main', models.BooleanField(default=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('room', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='images', to='hotel.room')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("image", models.ImageField(upload_to="rooms/")),
+                ("order", models.IntegerField(default=0)),
+                ("is_main", models.BooleanField(default=False)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "room",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="images",
+                        to="hotel.room",
+                    ),
+                ),
             ],
         ),
     ]

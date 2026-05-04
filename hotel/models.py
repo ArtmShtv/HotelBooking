@@ -16,7 +16,9 @@ class Country(models.Model):
 
 
 class Region(models.Model):
-    country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name="country_regions")
+    country = models.ForeignKey(
+        Country, on_delete=models.PROTECT, related_name="country_regions"
+    )
     name = models.CharField(max_length=255)
 
     def __str__(self):
@@ -24,7 +26,9 @@ class Region(models.Model):
 
 
 class City(models.Model):
-    region = models.ForeignKey(Region, on_delete=models.PROTECT, related_name="region_cities")
+    region = models.ForeignKey(
+        Region, on_delete=models.PROTECT, related_name="region_cities"
+    )
     name = models.CharField(max_length=255)
 
     def __str__(self):
@@ -32,9 +36,15 @@ class City(models.Model):
 
 
 class Address(models.Model):
-    country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name="country_addresses")
-    region = models.ForeignKey(Region, on_delete=models.PROTECT, related_name="region_addresses")
-    city = models.ForeignKey(City, on_delete=models.PROTECT, related_name="city_addresses")
+    country = models.ForeignKey(
+        Country, on_delete=models.PROTECT, related_name="country_addresses"
+    )
+    region = models.ForeignKey(
+        Region, on_delete=models.PROTECT, related_name="region_addresses"
+    )
+    city = models.ForeignKey(
+        City, on_delete=models.PROTECT, related_name="city_addresses"
+    )
 
     street = models.CharField(max_length=255)
     house = models.CharField(max_length=50)
@@ -49,7 +59,7 @@ class Address(models.Model):
     @property
     def coordinates(self) -> tuple[Decimal, Decimal]:
         return (self.longitude, self.latitude)
-    
+
     def __str__(self):
         parts = [
             str(self.country),
@@ -72,10 +82,7 @@ class Hotel(models.Model):
     name = models.CharField(max_length=255, db_index=True)
     address = models.ForeignKey(to=Address, on_delete=models.PROTECT)
 
-    description = models.TextField(
-        blank=True,
-        default="No description"
-    )
+    description = models.TextField(blank=True, default="No description")
     phone = models.CharField(max_length=20)
     email = models.EmailField()
 
@@ -90,9 +97,7 @@ class Hotel(models.Model):
 
 class RoomCategory(models.Model):
     hotel = models.ForeignKey(
-        Hotel,
-        on_delete=models.CASCADE,
-        related_name="room_categories"
+        Hotel, on_delete=models.CASCADE, related_name="room_categories"
     )
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
@@ -111,22 +116,15 @@ class RoomCategory(models.Model):
 
 
 class Room(models.Model):
-    hotel = models.ForeignKey(
-        Hotel,
-        on_delete=models.PROTECT,
-        related_name="rooms"
-    )
+    hotel = models.ForeignKey(Hotel, on_delete=models.PROTECT, related_name="rooms")
 
     room_number = models.CharField(max_length=20)
     category = models.ForeignKey(
-        RoomCategory,
-        on_delete=models.PROTECT,
-        related_name="rooms"
+        RoomCategory, on_delete=models.PROTECT, related_name="rooms"
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
 
     class Meta:
         unique_together = ("hotel", "room_number")
@@ -142,7 +140,7 @@ class Room(models.Model):
 class RoomImage(models.Model):
     room = models.ForeignKey(to=Room, on_delete=models.CASCADE, related_name="images")
 
-    image = models.ImageField(upload_to='rooms/')
+    image = models.ImageField(upload_to="rooms/")
 
     order = models.IntegerField(default=0)
     is_main = models.BooleanField(default=False)

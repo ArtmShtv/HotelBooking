@@ -6,10 +6,10 @@ from rest_framework import serializers
 from rest_framework import status
 
 from hotel.models import (
-    Country, 
-    City, 
-    Address, 
-    )
+    Country,
+    City,
+    Address,
+)
 
 
 class HotelAPIView(APIView):
@@ -35,7 +35,7 @@ class AddressListAPIView(APIView):
     def get(self, request):
         addresses = Address.objects.all()
         serializer = self.AddressSerializer(addresses, many=True)
-        
+
         return Response(serializer.data)
 
 
@@ -96,7 +96,7 @@ class AddressDeleteAPIView(APIView):
 
 class CountryListAPIView(APIView):
     class OutputSerializer(serializers.Serializer):
-        id = serializers.IntegerField() 
+        id = serializers.IntegerField()
         iso_code = serializers.CharField()
         name = serializers.CharField()
 
@@ -111,10 +111,10 @@ class CountryCreateAPIView(APIView):
     class InputSerializer(serializers.ModelSerializer):
         class Meta:
             model = Country
-            fields = ['iso_code', 'name']
+            fields = ["iso_code", "name"]
             extra_kwargs = {
-                'iso_code': {'validators': []},
-                'name': {'validators': []},
+                "iso_code": {"validators": []},
+                "name": {"validators": []},
             }
 
     def post(self, request):
@@ -127,19 +127,23 @@ class CountryCreateAPIView(APIView):
         if serializer.is_valid(raise_exception=True):
             validated_data = serializer.validated_data
 
-            existing_iso_codes = set(Country.objects.values_list('iso_code', flat=True))
-            existing_names = set(Country.objects.values_list('name', flat=True))
+            existing_iso_codes = set(Country.objects.values_list("iso_code", flat=True))
+            existing_names = set(Country.objects.values_list("name", flat=True))
 
             to_create = []
             seen_iso_codes = set()
             seen_names = set()
 
             for item in validated_data:
-                iso = item['iso_code']
-                name = item['name']
+                iso = item["iso_code"]
+                name = item["name"]
 
-                if (iso not in existing_iso_codes and iso not in seen_iso_codes and
-                        name not in existing_names and name not in seen_names):
+                if (
+                    iso not in existing_iso_codes
+                    and iso not in seen_iso_codes
+                    and name not in existing_names
+                    and name not in seen_names
+                ):
                     to_create.append(Country(**item))
                     seen_iso_codes.add(iso)
                     seen_names.add(name)
@@ -163,13 +167,13 @@ class CountryUpdateAPIView(APIView):
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response("Country attribute updated", status=status.HTTP_201_CREATED)
-        
+
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class CountryDeleteAPIView(APIView):
     def delete(self, request, pk):
-        #breakpoint()
+        # breakpoint()
         country = get_object_or_404(Country, pk=pk)
 
         country.delete()
