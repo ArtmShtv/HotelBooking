@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.db import transaction
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -7,6 +8,7 @@ from rest_framework import status
 
 from hotel.models import (
     Country,
+    Region,
     City,
     Address,
 )
@@ -148,7 +150,8 @@ class CountryCreateAPIView(APIView):
                     seen_iso_codes.add(iso)
                     seen_names.add(name)
 
-            Country.objects.bulk_create(to_create)
+            with transaction.atomic():
+                Country.objects.bulk_create(to_create)
             return Response(status=status.HTTP_201_CREATED)
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -173,9 +176,82 @@ class CountryUpdateAPIView(APIView):
 
 class CountryDeleteAPIView(APIView):
     def delete(self, request, pk):
-        # breakpoint()
         country = get_object_or_404(Country, pk=pk)
 
         country.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class RegionListAPIView(APIView):
+    class OutputSerializer(serializers.ModelSerializer):
+        country = serializers.SerializerMethodField()
+
+        class Meta:
+            model = Region
+            fields = ["country", "name"]
+
+        def get_country(self, obj):
+            return obj.country.name
+
+    def get(self, request, country_id: int):
+        country_regions = Region.objects.filter(country=country_id)
+        serializer = self.OutputSerializer(country_regions, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class RegionCreateAPIView(APIView):
+    class InputSerializer(serializers.ModelSerializer):
+        regions = serializers.ListField()
+        class Meta:
+            model = Region
+            fields = ["country", "regions"]
+
+    def post(self, request):
+        serializer = self.InputSerializer(data=request.data)
+
+        if serializer.is_valid(raise_exception=True):
+            country = serializer.validated_data["country"]
+
+            regions = serializer.validated_data["regions"]
+            country_regions = set(Region.objects.filter(country=country).values_list("name", flat=True))
+
+            to_create = []
+            seen_names = set()
+
+            for region in regions:
+                if region not in seen_names and region not in country_regions:
+                    to_create.append(Region(name=region, country=country))
+                    seen_names.add(region)
+
+            with transaction.atomic():
+                Region.objects.bulk_create(to_create)
+            return Response(status=status.HTTP_201_CREATED)
+
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class RegionUpdateAPIView(APIView):
+    class InputSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Region
+            fields = ["country", "name"]
+
+    def patch(self, request, region_id: int):
+        region = get_object_or_404(Region, id=region_id)
+
+        serializer = self.InputSerializer(region, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(status=status.HTTP_200_OK)
+
+        Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class RegionDeleteAPIView(APIView):
+    def delete(self, request, region_id: int):
+        region = get_object_or_404(Region, id=region_id)
+
+        region.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
