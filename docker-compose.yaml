@@ -1,5 +1,17 @@
 services:
 
+  nginx:
+    image: nginx:stable-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - "./nginx.conf:/etc/nginx/nginx.conf"
+    networks:
+      - hotel_network
+    depends_on:
+      backend:
+        condition: service_started
+
   backend:
     build: .
     container_name: django_hotel_app
@@ -8,8 +20,10 @@ services:
     networks:
       - hotel_network
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       SECRET_KEY: ${DJANGO_SECRET_KEY}
       DEBUG: ${DJANGO_DEBUG}
@@ -40,12 +54,17 @@ services:
       start_period: 10s
 
   redis:
-    image: redis:latest
+    image: redis:7-alpine
     container_name: redis_hotel
     volumes:
       - redis_data:/data
     networks:
       - hotel_network
+    healthcheck:
+        test: ["CMD", "redis-cli", "ping"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
 
 volumes:
   postgres-data:
