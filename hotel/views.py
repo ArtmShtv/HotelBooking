@@ -203,6 +203,7 @@ class RegionListAPIView(APIView):
 class RegionCreateAPIView(APIView):
     class InputSerializer(serializers.ModelSerializer):
         regions = serializers.ListField()
+
         class Meta:
             model = Region
             fields = ["country", "regions"]
@@ -214,7 +215,9 @@ class RegionCreateAPIView(APIView):
             country = serializer.validated_data["country"]
 
             regions = serializer.validated_data["regions"]
-            country_regions = set(Region.objects.filter(country=country).values_list("name", flat=True))
+            country_regions = set(
+                Region.objects.filter(country=country).values_list("name", flat=True)
+            )
 
             to_create = []
             seen_names = set()
