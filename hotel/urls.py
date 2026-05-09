@@ -23,6 +23,7 @@ urlpatterns = [
         views.AddressDeleteAPIView.as_view(),
         name="address_delete",
     ),
+
     path("country/", views.CountryListAPIView.as_view(), name="country_list"),
     path(
         "country/create/", views.CountryCreateAPIView.as_view(), name="country_create"
@@ -37,6 +38,7 @@ urlpatterns = [
         views.CountryDeleteAPIView.as_view(),
         name="country_delete",
     ),
+
     path(
         "country/<int:country_id>/region/",
         views.RegionListAPIView.as_view(),
@@ -52,5 +54,22 @@ urlpatterns = [
         "region/delete/<int:region_id>/",
         views.RegionDeleteAPIView.as_view(),
         name="region_delete",
+    ),
+
+    path(
+        "region/<int:region_id>/city/",
+        views.CityListAPIView.as_view(),
+        name="city_list",
+    ),
+    path("city/create/", views.CityCreateAPIView.as_view(), name="city_create"),
+    path(
+        "city/update/<int:city_id>/",
+        views.CityUpdateAPIView.as_view(),
+        name="city_update",
+    ),
+    path(
+        "city/delete/",
+        views.CityDeleteAPIView.as_view(),
+        name="city_delete",
     ),
 ]

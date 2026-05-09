@@ -184,20 +184,16 @@ class CountryDeleteAPIView(APIView):
 
 
 class RegionListAPIView(APIView):
-    class OutputSerializer(serializers.ModelSerializer):
-        country = serializers.SerializerMethodField()
-
-        class Meta:
-            model = Region
-            fields = ["country", "name"]
-
-        def get_country(self, obj):
-            return obj.country.name
-
     def get(self, request, country_id: int):
-        country_regions = Region.objects.filter(country=country_id)
-        serializer = self.OutputSerializer(country_regions, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        country = get_object_or_404(Country, id=country_id)
+        country_regions = list(Region.objects.filter(country=country).values_list("name", flat=True))
+
+        data = {
+            "country": country.name,
+            "regions": country_regions
+        }
+
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class RegionCreateAPIView(APIView):
@@ -209,29 +205,29 @@ class RegionCreateAPIView(APIView):
             fields = ["country", "regions"]
 
     def post(self, request):
-        serializer = self.InputSerializer(data=request.data)
+        payload = request.data
+        if isinstance(payload, dict):
+            payload = [payload]
 
-        if serializer.is_valid(raise_exception=True):
-            country = serializer.validated_data["country"]
+        serializer = self.InputSerializer(data=payload, many=True)
 
-            regions = serializer.validated_data["regions"]
-            country_regions = set(
-                Region.objects.filter(country=country).values_list("name", flat=True)
-            )
+        serializer.is_valid(raise_exception=True)
+        to_create = []
+        for item in serializer.data:
+            country_id = item["country"]
+            regions = item["regions"]
+            country_regions = set(Region.objects.filter(country_id=country_id).values_list("name", flat=True))
 
-            to_create = []
             seen_names = set()
 
             for region in regions:
                 if region not in seen_names and region not in country_regions:
-                    to_create.append(Region(name=region, country=country))
+                    to_create.append(Region(name=region, country_id=country_id))
                     seen_names.add(region)
 
             with transaction.atomic():
                 Region.objects.bulk_create(to_create)
             return Response(status=status.HTTP_201_CREATED)
-
-        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class RegionUpdateAPIView(APIView):
@@ -244,17 +240,95 @@ class RegionUpdateAPIView(APIView):
         region = get_object_or_404(Region, id=region_id)
 
         serializer = self.InputSerializer(region, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(status=status.HTTP_200_OK)
-
-        Response(status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid()
+        serializer.save()
+        return Response(status=status.HTTP_200_OK)
 
 
 class RegionDeleteAPIView(APIView):
-    def delete(self, request, region_id: int):
+    class InputSerializer(serializers.Serializer):
+        regions_id = serializers.ListField()
+
+    def delete(self, request):
+        serializer = self.InputSerializer(data=request.data)
+        serializer.is_valid()
+        Region.objects.filter(id__in=serializer.validated_data["regions_id"]).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class CityListAPIView(APIView):
+    class OutputSerializer(serializers.ModelSerializer):
+        region = serializers.SerializerMethodField()
+
+        class Meta:
+            model = City
+            fields = ["region", "name"]
+
+        def get_region(self, obj):
+            return obj.name
+
+    def get(self, request, region_id: int):
         region = get_object_or_404(Region, id=region_id)
+        cities = City.objects.filter(region=region)
+        serializer = self.OutputSerializer(cities, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
 
-        region.delete()
+class CityCreateAPIView(APIView):
+    class InputSerializer(serializers.ModelSerializer):
+        cities_names = serializers.ListField()
 
+        class Meta:
+            model = City
+            fields = ["region", "cities_names"]
+
+    def post(self, request):
+        payload = request.data
+        if isinstance(payload, dict):
+            payload = [payload]
+
+        serializer = self.InputSerializer(data=payload, many=True)
+        serializer.is_valid(raise_exception=True)
+        to_create = []
+        
+        for item in payload:
+            region = get_object_or_404(Region, id=item["region"])
+            cities_names = item["cities_names"]
+            existing_region_cities = set(City.objects.filter(region=region).values_list("name", flat=True))
+
+            seen_names = set()
+
+            for city_name in cities_names:
+                if city_name not in seen_names and city_name not in existing_region_cities:
+                    to_create.append(City(region=region, name=city_name))
+                    seen_names.add(city_name)
+
+        with transaction.atomic():
+            City.objects.bulk_create(to_create)
+        return Response(status=status.HTTP_201_CREATED)
+
+
+class CityUpdateAPIView(APIView):
+    class InputSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = City
+            fields = ["region", "name"]
+
+    def patch(self, request, city_id):
+        city = get_object_or_404(City, id=city_id)
+
+        serializer = self.InputSerializer(city, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(status=status.HTTP_200_OK)
+
+
+class CityDeleteAPIView(APIView):
+    class InputSerializer(serializers.Serializer):
+        cities_id = serializers.ListField()
+
+    def delete(self, request):
+        serializer = self.InputSerializer(data=request.data)
+        serializer.is_valid()
+        City.objects.filter(id__in=serializer.validated_data["cities_id"]).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
