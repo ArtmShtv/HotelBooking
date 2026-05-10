@@ -1,0 +1,471 @@
+openapi: 3.0.3
+info:
+  title: ''
+  version: 0.0.0
+paths:
+  /api/schema/:
+    get:
+      operationId: schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - ht
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - ug
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - schema
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v0/hotel/address/:
+    get:
+      operationId: v0_hotel_address_retrieve
+      tags:
+      - v0
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v0/hotel/address/{id}/:
+    get:
+      operationId: v0_hotel_address_retrieve_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v0
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v0/hotel/address/create/:
+    post:
+      operationId: v0_hotel_address_create_create
+      tags:
+      - v0
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v0/hotel/address/delete/{id}/:
+    delete:
+      operationId: v0_hotel_address_delete_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v0
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/v0/hotel/address/update/{id}/:
+    put:
+      operationId: v0_hotel_address_update_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v0
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v0/hotel/city/create/:
+    post:
+      operationId: v0_hotel_city_create_create
+      tags:
+      - v0
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v0/hotel/city/delete/:
+    delete:
+      operationId: v0_hotel_city_delete_destroy
+      tags:
+      - v0
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/v0/hotel/city/update/{city_id}/:
+    patch:
+      operationId: v0_hotel_city_update_partial_update
+      parameters:
+      - in: path
+        name: city_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v0
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v0/hotel/country/:
+    get:
+      operationId: v0_hotel_country_retrieve
+      tags:
+      - v0
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v0/hotel/country/{country_id}/region/:
+    get:
+      operationId: v0_hotel_country_region_retrieve
+      parameters:
+      - in: path
+        name: country_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v0
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v0/hotel/country/create/:
+    post:
+      operationId: v0_hotel_country_create_create
+      tags:
+      - v0
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Input'
+            examples:
+              SingleCountry:
+                value:
+                - iso_code: DE
+                  name: Germany
+                summary: Single country
+              MultipleCountries:
+                value:
+                - - iso_code: DE
+                    name: Germany
+                  - iso_code: FR
+                    name: France
+                summary: Multiple countries
+          application/x-www-form-urlencoded:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Input'
+          multipart/form-data:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Input'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          description: Countries created successfully
+        '400':
+          description: Invalid input
+  /api/v0/hotel/country/delete/{id}/:
+    delete:
+      operationId: v0_hotel_country_delete_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v0
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/v0/hotel/country/update/{id}/:
+    patch:
+      operationId: v0_hotel_country_update_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v0
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v0/hotel/region/{region_id}/city/:
+    get:
+      operationId: v0_hotel_region_city_retrieve
+      parameters:
+      - in: path
+        name: region_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v0
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v0/hotel/region/create/:
+    post:
+      operationId: v0_hotel_region_create_create
+      tags:
+      - v0
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v0/hotel/region/delete/{region_id}/:
+    delete:
+      operationId: v0_hotel_region_delete_destroy
+      parameters:
+      - in: path
+        name: region_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v0
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/v0/hotel/region/update/{region_id}/:
+    patch:
+      operationId: v0_hotel_region_update_partial_update
+      parameters:
+      - in: path
+        name: region_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v0
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+components:
+  schemas:
+    Input:
+      type: object
+      properties:
+        iso_code:
+          type: string
+          maxLength: 2
+        name:
+          type: string
+          maxLength: 255
+      required:
+      - iso_code
+      - name
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

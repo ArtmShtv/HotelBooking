@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework import status
 
+from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
+
 from hotel.models import (
     Country,
     Region,
@@ -102,10 +104,29 @@ class CountryListAPIView(APIView):
         iso_code = serializers.CharField()
         name = serializers.CharField()
 
+    @extend_schema(
+        responses={
+            200: OpenApiResponse(
+                response=OutputSerializer(many=True),
+                description="List of countries",
+            ),
+        },
+        examples=[
+            OpenApiExample(
+                name="Countries",
+                value=[ 
+                    {"id": 1, "iso_code": "DE", "name": "Germany"},
+                    {"id": 2, "iso_code": "FR", "name": "France"},
+                ],
+                response_only=True,
+                status_codes=["200"],
+            )
+        ],
+        description="Get list of countries"
+    )
     def get(self, request):
-        countrys = Country.objects.all()
-        serializer = self.OutputSerializer(countrys, many=True)
-
+        countries = Country.objects.all()
+        serializer = self.OutputSerializer(countries, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -119,6 +140,29 @@ class CountryCreateAPIView(APIView):
                 "name": {"validators": []},
             }
 
+    @extend_schema(
+        request=InputSerializer(many=True),
+        responses={
+            201: OpenApiResponse(description="Countries created successfully"),
+            400: OpenApiResponse(description="Invalid input"),
+        },
+        examples=[
+            OpenApiExample(
+                name="Create single country",
+                value=[{"iso_code": "DE", "name": "Germany"}],
+                request_only=True,
+            ),
+            OpenApiExample(
+                name="Create multiple countries",
+                value=[
+                    {"iso_code": "DE", "name": "Germany"},
+                    {"iso_code": "FR", "name": "France"},
+                ],
+                request_only=True,
+            ),
+        ],
+        description="Create one or several countrys"
+    )
     def post(self, request):
         payload = request.data
         if isinstance(payload, dict):
@@ -163,18 +207,44 @@ class CountryUpdateAPIView(APIView):
             model = Country
             fields = ["iso_code", "name"]
 
+    @extend_schema(
+        request=InputSerializer(),
+        responses={
+            200: OpenApiResponse(description="Country updated"),
+            400: OpenApiResponse(description="Invalid input"),
+            404: OpenApiResponse(description="Country not found"),
+        },
+        examples=[
+            OpenApiExample(
+                name="Update country",
+                value={
+                    "iso_code": "DE",
+                    "name": "Deutschland"
+                },
+                request_only=True,
+            )
+        ],
+        description="Update (Patch) country by its pk"
+    )
     def patch(self, request, pk):
         country = get_object_or_404(Country, id=pk)
 
         serializer = self.InputSerializer(country, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response("Country attribute updated", status=status.HTTP_201_CREATED)
+            return Response("Country updated", status=status.HTTP_200_OK)
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class CountryDeleteAPIView(APIView):
+    @extend_schema(
+        responses={
+            204: OpenApiResponse(description="Country deleted"),
+            404: OpenApiResponse(description="Country not found")
+        },
+        description="Delete country by its pk"
+    )
     def delete(self, request, pk):
         country = get_object_or_404(Country, pk=pk)
 

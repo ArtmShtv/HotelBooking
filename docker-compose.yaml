@@ -1,16 +1,16 @@
 services:
 
-  nginx:
-    image: nginx:stable-alpine
-    ports:
-      - "80:80"
-    volumes:
-      - "./nginx.conf:/etc/nginx/nginx.conf"
-    networks:
-      - hotel_network
-    depends_on:
-      backend:
-        condition: service_started
+  # nginx:
+  #   image: nginx:stable-alpine
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - "./nginx.conf:/etc/nginx/nginx.conf"
+  #   networks:
+  #     - hotel_network
+  #   depends_on:
+  #     backend:
+  #       condition: service_started
 
   backend:
     build: .
