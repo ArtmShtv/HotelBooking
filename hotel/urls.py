@@ -37,7 +37,7 @@ urlpatterns = [
         name="country_update",
     ),
     path(
-        "country/delete/",
+        "country/delete/<int:country_id>/",
         views.CountryDeleteAPIView.as_view(),
         name="country_delete",
     ),
@@ -48,17 +48,17 @@ urlpatterns = [
         views.RegionListAPIView.as_view(),
         name="region_list",
     ),
-    path("country/<int:country_id>/region/create/", 
+    path("region/create/", 
         views.RegionCreateAPIView.as_view(),
         name="region_create"
     ),
     path(
-        "country/<int:country_id>/region/update/<int:region_id>/",
+        "region/update/<int:region_id>/",
         views.RegionUpdateAPIView.as_view(),
         name="region_update",
     ),
     path(
-        "country/<int:country_id>/region/delete/",
+        "region/delete/",
         views.RegionDeleteAPIView.as_view(),
         name="region_delete",
     ),

@@ -122,7 +122,8 @@ class CountryListAPIView(APIView):
                 status_codes=["200"],
             )
         ],
-        description="Get list of countries"
+        description="Get list of countries",
+        tags=["1. Countries"]
     )
     def get(self, request):
         countries = Country.objects.all()
@@ -161,7 +162,8 @@ class CountryCreateAPIView(APIView):
                 request_only=True,
             ),
         ],
-        description="Create one or several countrys"
+        description="Create one or several countrys",
+        tags=["1. Countries"]
     )
     def post(self, request):
         payload = request.data
@@ -224,7 +226,8 @@ class CountryUpdateAPIView(APIView):
                 request_only=True,
             )
         ],
-        description="Update (Patch) country by its pk"
+        description="Update (Patch) country by its pk",
+        tags=["1. Countries"]
     )
     def patch(self, request, pk):
         country = get_object_or_404(Country, id=pk)
@@ -243,10 +246,11 @@ class CountryDeleteAPIView(APIView):
             204: OpenApiResponse(description="Country deleted"),
             404: OpenApiResponse(description="Country not found")
         },
-        description="Delete country by its pk"
+        description="Delete country by its pk",
+        tags=["1. Countries"]
     )
-    def delete(self, request, pk):
-        country = get_object_or_404(Country, pk=pk)
+    def delete(self, request, country_id:int):
+        country = get_object_or_404(Country, pk=country_id)
 
         country.delete()
 
@@ -277,7 +281,8 @@ class RegionListAPIView(APIView):
                 response_only=True,
                 status_codes=["200"],
             )
-        ]
+        ],
+        tags=["2. Regions"]
     )
     def get(self, request, country_id: int):
         country = get_object_or_404(Country, id=country_id)
@@ -309,7 +314,8 @@ class RegionCreateAPIView(APIView):
                 request_only=True,
                 status_codes=["201"],
             )
-        ]
+        ],
+        tags=["2. Regions"]
     )
     def post(self, request, country_id: int):
         country = get_object_or_404(Country, id=country_id)
@@ -359,9 +365,10 @@ class RegionUpdateAPIView(APIView):
                 request_only=True,
             )
         ],
-        description="Update (Patch) region by its pk"
+        description="Update (Patch) region by its pk",
+        tags=["2. Regions"]
     )
-    def patch(self, request, region_id: int):
+    def patch(self, request, country_id:int, region_id: int):
         region = get_object_or_404(Region, id=region_id)
 
         serializer = self.InputSerializer(region, data=request.data, partial=True)
@@ -386,12 +393,13 @@ class RegionDeleteAPIView(APIView):
                 request_only=True,
             )
         ],
-        description="Delete several regions by its pk"
+        description="Delete several regions by its pk",
+        tags=["2. Regions"]
     )
-    def delete(self, request):
+    def delete(self, request, country_id:int):
         serializer = self.InputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         Region.objects.filter(id__in=serializer.validated_data["regions_id"]).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -402,11 +410,26 @@ class CityListAPIView(APIView):
 
         class Meta:
             model = City
-            fields = ["region", "name"]
+            fields = ["id", "region", "name"]
 
         def get_region(self, obj):
             return obj.name
 
+    @extend_schema(
+        responses={
+            200: OpenApiResponse(description="Get list of cities for region")
+        },
+        examples=[
+            OpenApiExample(
+                name="Get list of cities for region",
+                value={
+                    "id": 1,
+                    "region": "Some region",
+                    
+                }
+            )
+        ]
+    )
     def get(self, request, region_id: int):
         region = get_object_or_404(Region, id=region_id)
         cities = City.objects.filter(region=region)
