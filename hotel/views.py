@@ -254,50 +254,86 @@ class CountryDeleteAPIView(APIView):
 
 
 class RegionListAPIView(APIView):
+    class OutputSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Region
+            fields = ["id", "name"]
+
+    @extend_schema(
+        responses={
+            200: OpenApiResponse(
+                response=OutputSerializer(many=True),
+                description="Regions for a country",
+            ),
+            404: OpenApiResponse(description="Country not found"),
+        },
+        examples=[
+            OpenApiExample(
+                name="Get list of regions",
+                value=[
+                    {"id": 1, "name": "Bavaria"},
+                    {"id": 2, "name": "Berlin"},
+                ],
+                response_only=True,
+                status_codes=["200"],
+            )
+        ]
+    )
     def get(self, request, country_id: int):
         country = get_object_or_404(Country, id=country_id)
-        country_regions = list(Region.objects.filter(country=country).values_list("name", flat=True))
+        regions = Region.objects.filter(country=country)
 
-        data = {
-            "country": country.name,
-            "regions": country_regions
-        }
-
-        return Response(data, status=status.HTTP_200_OK)
+        serializer = self.OutputSerializer(regions, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class RegionCreateAPIView(APIView):
-    class InputSerializer(serializers.ModelSerializer):
-        regions = serializers.ListField()
+    class InputSerializer(serializers.Serializer):
+        regions = serializers.ListField(
+            child=serializers.CharField(),
+            allow_empty=False,
+        )
 
-        class Meta:
-            model = Region
-            fields = ["country", "regions"]
+    @extend_schema(
+        request=InputSerializer(),
+        responses={
+            201: OpenApiResponse(description="Regions created"),
+            404: OpenApiResponse(description="Country not found"),
+        },
+        examples=[
+            OpenApiExample(
+                name="Create regions for a country",
+                value={
+                    "regions": ["Some regions", "to", "Create"]
+                },
+                request_only=True,
+                status_codes=["201"],
+            )
+        ]
+    )
+    def post(self, request, country_id: int):
+        country = get_object_or_404(Country, id=country_id)
 
-    def post(self, request):
-        payload = request.data
-        if isinstance(payload, dict):
-            payload = [payload]
-
-        serializer = self.InputSerializer(data=payload, many=True)
-
+        serializer = self.InputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
+        region_names = serializer.validated_data["regions"]
+
+        country_regions = set(
+            Region.objects.filter(country_id=country_id).values_list("name", flat=True)
+        )
+        seen_names = set()
         to_create = []
-        for item in serializer.data:
-            country_id = item["country"]
-            regions = item["regions"]
-            country_regions = set(Region.objects.filter(country_id=country_id).values_list("name", flat=True))
 
-            seen_names = set()
+        for name in region_names:
+            if name not in country_regions and name not in seen_names:
+                to_create.append(Region(name=name, country=country))
+                seen_names.add(name)
 
-            for region in regions:
-                if region not in seen_names and region not in country_regions:
-                    to_create.append(Region(name=region, country_id=country_id))
-                    seen_names.add(region)
+        with transaction.atomic():
+            Region.objects.bulk_create(to_create)
 
-            with transaction.atomic():
-                Region.objects.bulk_create(to_create)
-            return Response(status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_201_CREATED)
 
 
 class RegionUpdateAPIView(APIView):
@@ -306,6 +342,25 @@ class RegionUpdateAPIView(APIView):
             model = Region
             fields = ["country", "name"]
 
+    @extend_schema(
+        request=InputSerializer(),
+        responses={
+            200: OpenApiResponse(description="Region updated"),
+            400: OpenApiResponse(description="Invalid input"),
+            404: OpenApiResponse(description="Region not found"),
+        },
+        examples=[
+            OpenApiExample(
+                name="Update country",
+                value={
+                    "country": 1,
+                    "name": "Some name"
+                },
+                request_only=True,
+            )
+        ],
+        description="Update (Patch) region by its pk"
+    )
     def patch(self, request, region_id: int):
         region = get_object_or_404(Region, id=region_id)
 
@@ -319,9 +374,24 @@ class RegionDeleteAPIView(APIView):
     class InputSerializer(serializers.Serializer):
         regions_id = serializers.ListField()
 
+    @extend_schema(
+        responses={
+            204: OpenApiResponse(description="Regions deleted"),
+            400: OpenApiResponse(description="Invalid input"),
+        },
+        examples=[
+            OpenApiExample(
+                name="Delete regions",
+                value={"region_ids": [1, 2, 3]},
+                request_only=True,
+            )
+        ],
+        description="Delete several regions by its pk"
+    )
     def delete(self, request):
         serializer = self.InputSerializer(data=request.data)
-        serializer.is_valid()
+        serializer.is_valid(raise_exception=True)
+        
         Region.objects.filter(id__in=serializer.validated_data["regions_id"]).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

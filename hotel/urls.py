@@ -4,6 +4,8 @@ from hotel import views
 
 
 urlpatterns = [
+
+    # Address enpoints
     path("address/", views.AddressListAPIView.as_view(), name="address_list"),
     path(
         "address/<int:pk>/",
@@ -24,6 +26,7 @@ urlpatterns = [
         name="address_delete",
     ),
 
+    # Country enpoints
     path("country/", views.CountryListAPIView.as_view(), name="country_list"),
     path(
         "country/create/", views.CountryCreateAPIView.as_view(), name="country_create"
@@ -34,41 +37,50 @@ urlpatterns = [
         name="country_update",
     ),
     path(
-        "country/delete/<int:pk>/",
+        "country/delete/",
         views.CountryDeleteAPIView.as_view(),
         name="country_delete",
     ),
 
+    # Region enpoints
     path(
         "country/<int:country_id>/region/",
         views.RegionListAPIView.as_view(),
         name="region_list",
     ),
-    path("region/create/", views.RegionCreateAPIView.as_view(), name="region_create"),
+    path("country/<int:country_id>/region/create/", 
+        views.RegionCreateAPIView.as_view(),
+        name="region_create"
+    ),
     path(
-        "region/update/<int:region_id>/",
+        "country/<int:country_id>/region/update/<int:region_id>/",
         views.RegionUpdateAPIView.as_view(),
         name="region_update",
     ),
     path(
-        "region/delete/<int:region_id>/",
+        "country/<int:country_id>/region/delete/",
         views.RegionDeleteAPIView.as_view(),
         name="region_delete",
     ),
 
+    # City enpoints
     path(
-        "region/<int:region_id>/city/",
+        "country/<int:country_id>/region/<int:region_id>/city/",
         views.CityListAPIView.as_view(),
         name="city_list",
     ),
-    path("city/create/", views.CityCreateAPIView.as_view(), name="city_create"),
     path(
-        "city/update/<int:city_id>/",
+        "country/<int:country_id>/region/<int:region_id>/city/create/", 
+        views.CityCreateAPIView.as_view(), 
+        name="city_create"
+    ),
+    path(
+        "country/<int:country_id>/region/<int:region_id>/city/update/<int:city_id>/",
         views.CityUpdateAPIView.as_view(),
         name="city_update",
     ),
     path(
-        "city/delete/",
+        "country/<int:country_id>/region/<int:region_id>/city/delete/",
         views.CityDeleteAPIView.as_view(),
         name="city_delete",
     ),
