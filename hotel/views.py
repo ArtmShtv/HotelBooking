@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 
-from rest_framework import serializers, status 
+from rest_framework import serializers, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import permission_classes
@@ -100,12 +100,13 @@ class AddressDeleteAPIView(APIView):
 
 
 class CountryAPIView(APIView):
-    SAFE_METHODS = ("GET")
+    SAFE_METHODS = "GET"
+
     def get_permissions(self):
         if self.request.method not in self.SAFE_METHODS:
             return [IsAdminUser()]
         return [AllowAny()]
-    
+
     class OutputListSerializer(serializers.Serializer):
         id = serializers.IntegerField()
         iso_code = serializers.CharField()
@@ -213,7 +214,7 @@ class CountryDetailAPIView(APIView):
         if self.request.method in ["PATCH", "DELETE"]:
             return [IsAdminUser()]
         return [AllowAny()]
-    
+
     class InputUpdateSerializer(serializers.ModelSerializer):
         class Meta:
             model = Country
@@ -240,7 +241,9 @@ class CountryDetailAPIView(APIView):
     def patch(self, request, country_id):
         country = get_object_or_404(Country, id=country_id)
 
-        serializer = self.InputUpdateSerializer(country, data=request.data, partial=True)
+        serializer = self.InputUpdateSerializer(
+            country, data=request.data, partial=True
+        )
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response("Country updated", status=status.HTTP_200_OK)
@@ -325,7 +328,6 @@ class RegionDetailAPIView(APIView):
         serializer = self.OutputSerializer(regions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
     class InputCreateSerializer(serializers.Serializer):
         regions = serializers.ListField(
             child=serializers.CharField(),
@@ -371,7 +373,6 @@ class RegionDetailAPIView(APIView):
             Region.objects.bulk_create(to_create)
 
         return Response(status=status.HTTP_201_CREATED)
-
 
     class InputSerializer(serializers.ModelSerializer):
         class Meta:

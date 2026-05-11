@@ -22,9 +22,9 @@ def test_list_country(api_client, country_data):
     assert response.status_code == 200
     assert len(response.data) == 3
     assert response.data[0] == {
-        'id': country_1.id,
-        'iso_code': 'AA',
-        'name': 'Country 1'
+        "id": country_1.id,
+        "iso_code": "AA",
+        "name": "Country 1",
     }
 
 
@@ -55,7 +55,7 @@ def test_create_multiple_countries(authenticated_admin_client):
 def test_create_country_accepts_single_dict(authenticated_admin_client):
     """Test that a single dict (not list) is also accepted"""
     url = reverse("hotel-country")
-    payload = {"iso_code": "DE", "name": "Germany"} 
+    payload = {"iso_code": "DE", "name": "Germany"}
     response = authenticated_admin_client.post(url, payload, format="json")
 
     assert response.status_code == 201
@@ -85,7 +85,7 @@ def test_create_country_skips_duplicate_within_payload(authenticated_admin_clien
     response = authenticated_admin_client.post(url, payload, format="json")
 
     assert response.status_code == 201
-    assert Country.objects.count() == 1 
+    assert Country.objects.count() == 1
 
 
 @pytest.mark.django_db
@@ -134,7 +134,9 @@ def test_patch_country(authenticated_admin_client, country_data):
 def test_patch_country_partial(authenticated_admin_client, country_data):
     country_1, _, _ = country_data
     url = reverse("hotel-country-detail", kwargs={"country_id": country_1.id})
-    response = authenticated_admin_client.patch(url, {"name": "Only Name"}, format="json")
+    response = authenticated_admin_client.patch(
+        url, {"name": "Only Name"}, format="json"
+    )
     assert response.status_code == 200
     country_1.refresh_from_db()
     assert country_1.name == "Only Name"
