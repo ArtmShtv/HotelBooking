@@ -37,7 +37,7 @@ urlpatterns = [
         views.RegionAPIView.as_view(),
         name="hotel-region",
     ),
-    path("region/<int:>", views.RegionAPIView.as_view(), name="hotel-region-detail"),
+    path("region/<int:region_id>/", views.RegionAPIView.as_view(), name="hotel-region-detail"),
     # City enpoints
     path(
         "region/<int:region_id>/city/", views.CityAPIView.as_view(), name="hotel-city"

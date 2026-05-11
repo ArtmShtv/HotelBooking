@@ -127,7 +127,7 @@ class CountryAPIView(APIView):
     )
     def get(self, request):
         countries = Country.objects.all()
-        serializer = self.OutputSerializer(countries, many=True)
+        serializer = self.OutputListSerializer(countries, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     class InputCreateSerializer(serializers.ModelSerializer):
