@@ -1,10 +1,11 @@
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 
+from rest_framework import serializers, status 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import serializers
-from rest_framework import status
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 
 from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
 
@@ -99,6 +100,12 @@ class AddressDeleteAPIView(APIView):
 
 
 class CountryAPIView(APIView):
+    SAFE_METHODS = ("GET")
+    def get_permissions(self):
+        if self.request.method not in self.SAFE_METHODS:
+            return [IsAdminUser()]
+        return [AllowAny()]
+    
     class OutputListSerializer(serializers.Serializer):
         id = serializers.IntegerField()
         iso_code = serializers.CharField()
@@ -168,7 +175,7 @@ class CountryAPIView(APIView):
         if isinstance(payload, dict):
             payload = [payload]
 
-        serializer = self.InputSerializer(data=payload, many=True)
+        serializer = self.InputCreateSerializer(data=payload, many=True)
 
         if serializer.is_valid(raise_exception=True):
             validated_data = serializer.validated_data
@@ -202,6 +209,11 @@ class CountryAPIView(APIView):
 
 
 class CountryDetailAPIView(APIView):
+    def get_permissions(self):
+        if self.request.method in ["PATCH", "DELETE"]:
+            return [IsAdminUser()]
+        return [AllowAny()]
+    
     class InputUpdateSerializer(serializers.ModelSerializer):
         class Meta:
             model = Country
@@ -224,10 +236,11 @@ class CountryDetailAPIView(APIView):
         description="Update (Patch) country by its pk",
         tags=["1. Countries"],
     )
-    def patch(self, request, pk):
-        country = get_object_or_404(Country, id=pk)
+    @permission_classes([IsAdminUser])
+    def patch(self, request, country_id):
+        country = get_object_or_404(Country, id=country_id)
 
-        serializer = self.InputSerializer(country, data=request.data, partial=True)
+        serializer = self.InputUpdateSerializer(country, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response("Country updated", status=status.HTTP_200_OK)
@@ -242,6 +255,7 @@ class CountryDetailAPIView(APIView):
         description="Delete country by its pk",
         tags=["1. Countries"],
     )
+    @permission_classes([IsAdminUser])
     def delete(self, request, country_id: int):
         country = get_object_or_404(Country, pk=country_id)
 
