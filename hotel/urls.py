@@ -4,25 +4,34 @@ from hotel import views
 
 
 urlpatterns = [
+    # Hotel endpoints
+    path("hotel/", views.HotelAPIView.as_view(), name="hotel-list"),
+    path(
+        "hotel/<int:hotel_id>/", views.HotelDetailAPIView.as_view(), name="hotel-detail"
+    ),
+    path("hotel/<int:hotel_id>/rooms/", views.RoomAPIView.as_view(), name="room-list"),
+    path(
+        "hotel/<int:hotel_id>/rooms/<int:room_id>/",
+        views.RoomDetailAPIView.as_view(),
+        name="room-detail",
+    ),
+    # Room categories endpoints
+    path(
+        "hotel/<int:hotel_id>/categories/",
+        views.RoomCategoryAPIView.as_view(),
+        name="room-category-list",
+    ),
+    path(
+        "hotel/<int:hotel_id>/categories/<int:category_id>/",
+        views.RoomCategoryDetailAPIView.as_view(),
+        name="room-category-detail",
+    ),
     # Address enpoints
-    path("address/", views.AddressListAPIView.as_view(), name="address_list"),
+    path("address/", views.AddressAPIView.as_view(), name="hotel-country"),
     path(
-        "address/<int:pk>/",
-        views.AddressRetrieveAPIView.as_view(),
-        name="retrieve_address",
-    ),
-    path(
-        "address/create/", views.AddressCreateAPIView.as_view(), name="address_create"
-    ),
-    path(
-        "address/update/<int:pk>/",
-        views.AddressUpdateAPIView.as_view(),
-        name="address_update",
-    ),
-    path(
-        "address/delete/<int:pk>/",
-        views.AddressDeleteAPIView.as_view(),
-        name="address_delete",
+        "address/<int:address_id>/",
+        views.AddressDetailAPIView.as_view(),
+        name="hotel-country-detail",
     ),
     # Country enpoints
     path("country/", views.CountryAPIView.as_view(), name="hotel-country"),
